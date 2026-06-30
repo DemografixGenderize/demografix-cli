@@ -1,0 +1,82 @@
+version: 2
+project_name: demografix
+
+before:
+  hooks:
+    - go mod tidy
+    - go test ./...
+
+builds:
+  - id: demografix
+    main: .
+    binary: demografix
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    ldflags:
+      - -s -w
+      - -X github.com/DemografixGenderize/demografix-cli/internal/version.Version={{ .Version }}
+
+archives:
+  - id: default
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  use: github
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+
+brews:
+  - name: demografix
+    repository:
+      owner: DemografixGenderize
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    directory: Formula
+    homepage: "https://genderize.io"
+    description: "Command-line client for the Demografix APIs (genderize, agify, nationalize)"
+    license: "MIT"
+    install: |
+      bin.install "demografix"
+    test: |
+      system "#{bin}/demografix", "version"
+
+dockers:
+  - image_templates:
+      - "ghcr.io/demografixgenderize/demografix-cli:{{ .Version }}"
+      - "ghcr.io/demografixgenderize/demografix-cli:latest"
+    dockerfile: Dockerfile
+    goos: linux
+    goarch: amd64
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.source=https://github.com/DemografixGenderize/demografix-cli"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+
+release:
+  github:
+    owner: DemografixGenderize
+    name: demografix-cli
+  draft: false
+  prerelease: auto
