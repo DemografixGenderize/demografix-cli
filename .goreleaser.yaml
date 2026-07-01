@@ -56,6 +56,14 @@ homebrew_casks:
     description: "Command-line client for the Demografix APIs (genderize, agify, nationalize)"
     binaries:
       - demografix
+    # Strip the Gatekeeper quarantine so the unsigned binary runs without the
+    # "developer cannot be verified" prompt.
+    hooks:
+      post:
+        install: |
+          if OS.mac?
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/demografix"]
+          end
 
 release:
   github:
