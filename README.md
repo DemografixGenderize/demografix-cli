@@ -1,9 +1,11 @@
 # demografix CLI
 
-Command-line client for the Demografix APIs — [genderize.io](https://genderize.io),
-[agify.io](https://agify.io), and [nationalize.io](https://nationalize.io). One
-static binary covering all three services, plus spreadsheet enrichment that
-joins predictions back onto your rows.
+`demografix` tells you the likely **gender**, **age**, and **nationality** of a
+person from their name, right from your terminal. Predict a single name, pipe in
+a list of them, or enrich a whole spreadsheet in place.
+
+It is a single static binary, built on the [genderize.io](https://genderize.io),
+[agify.io](https://agify.io), and [nationalize.io](https://nationalize.io) APIs.
 
 ## Install
 
@@ -23,18 +25,19 @@ Or download a binary for your OS/arch from the [releases](https://github.com/Dem
 
 ## Authentication
 
-Every request requires an API key. The key is resolved in this order:
+Every request needs an API key. Create a free account at
+[genderize.io](https://genderize.io) to get one — the free tier includes 2,500
+names per month, and the same key works across all three services.
 
-1. `--api-key-file <path>`
-2. `DEMOGRAFIX_API_KEY` environment variable
-3. the config file written by `demografix login`
-
-There is no raw `--api-key` flag (it would leak into shell history). `login`
-stores the key at `~/.config/demografix/config.toml` with `0600` permissions.
+Log in once and it is remembered:
 
 ```sh
-demografix login            # prompts for the key, no echo, verifies it
+demografix login            # prompts for your key (no echo), verifies it, saves it
 ```
+
+The key is stored at `~/.config/demografix/config.toml`, readable only by you.
+For scripts and CI, set `DEMOGRAFIX_API_KEY` instead — it takes precedence over
+the saved key.
 
 ## Usage
 
@@ -56,9 +59,8 @@ demografix quota
 
 ### Spreadsheet enrichment
 
-`enrich` reads a CSV/TSV/JSONL/JSON/XLSX file, predicts for each row, and writes
-the original columns plus the prediction columns — preserving every other
-column. It mirrors the browser tool's output.
+`enrich` reads a CSV/TSV/JSONL/JSON/XLSX file, predicts for each row, and appends
+the prediction columns while preserving every other column.
 
 ```sh
 demografix enrich people.csv -o out.csv \
