@@ -25,7 +25,6 @@ type App struct {
 	In  *os.File
 
 	outputFlag  string
-	apiKeyFile  string
 	timeout     time.Duration
 	concurrency int
 	noColor     bool
@@ -57,7 +56,6 @@ func (a *App) rootCmd() *cobra.Command {
 
 	pf := root.PersistentFlags()
 	pf.StringVarP(&a.outputFlag, "output", "o", "", "output format: table|json|jsonl|tsv|csv (default: auto)")
-	pf.StringVar(&a.apiKeyFile, "api-key-file", "", "read the API key from this file (highest precedence)")
 	pf.DurationVar(&a.timeout, "timeout", api.DefaultTimeout, "per-request timeout")
 	pf.IntVar(&a.concurrency, "concurrency", 4, "maximum concurrent requests")
 	pf.BoolVar(&a.noColor, "no-color", false, "disable colored output")
@@ -87,7 +85,7 @@ func (a *App) client() (*api.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	resolved, err := config.ResolveAPIKey(a.apiKeyFile, os.Getenv, path)
+	resolved, err := config.ResolveAPIKey(os.Getenv, path)
 	if err != nil {
 		return nil, err
 	}

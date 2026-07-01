@@ -2,7 +2,6 @@ package config
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"strings"
 )
@@ -12,7 +11,6 @@ type Source int
 
 const (
 	SourceNone Source = iota
-	SourceFile
 	SourceEnv
 	SourceConfig
 )
@@ -30,24 +28,11 @@ type Resolved struct {
 // Getenv reads an environment variable; injectable for testing.
 type Getenv func(string) string
 
-// ResolveAPIKey applies the precedence --api-key-file > DEMOGRAFIX_API_KEY >
-// config file. It returns ErrNoAPIKey when none resolves — there is no keyless
-// fallback.
-func ResolveAPIKey(keyFile string, getenv Getenv, configPath string) (Resolved, error) {
+// ResolveAPIKey applies the precedence DEMOGRAFIX_API_KEY > config file. It
+// returns ErrNoAPIKey when neither resolves — there is no keyless fallback.
+func ResolveAPIKey(getenv Getenv, configPath string) (Resolved, error) {
 	if getenv == nil {
 		getenv = os.Getenv
-	}
-
-	if keyFile != "" {
-		b, err := os.ReadFile(keyFile)
-		if err != nil {
-			return Resolved{}, fmt.Errorf("read api key file %q: %w", keyFile, err)
-		}
-		key := strings.TrimSpace(string(b))
-		if key == "" {
-			return Resolved{}, fmt.Errorf("api key file %q is empty", keyFile)
-		}
-		return Resolved{Key: key, Source: SourceFile}, nil
 	}
 
 	if v := strings.TrimSpace(getenv(EnvAPIKey)); v != "" {
