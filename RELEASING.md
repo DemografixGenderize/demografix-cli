@@ -30,8 +30,7 @@ field in `go.mod`).
    ```
 
 The `Release` workflow cross-compiles every target, publishes a GitHub Release
-with checksums, updates the Homebrew formula in the tap, and pushes the CI
-Docker image to `ghcr.io/demografixgenderize/demografix-cli`.
+with checksums, and updates the Homebrew cask in the tap.
 
 ## Install channels
 
