@@ -43,15 +43,16 @@ the saved key.
 
 ```sh
 # Predictions take names as arguments or one per line on stdin.
-demografix gender peter lois meg
-demografix gender andrea --country IT
-printf 'peter\nlois\n' | demografix gender
-demografix age peter
-demografix nationality nguyen
+# Quote full names so the shell treats each one as a single name.
+demografix gender "Peter Griffin" "Lois Griffin" "Meg Griffin"
+demografix gender "Andrea Rossi" --country IT
+printf 'Peter Griffin\nLois Griffin\n' | demografix gender
+demografix age "Peter Griffin"
+demografix nationality "Kim Nguyen"
 
 # Output is a table on a terminal and JSONL when piped; override with -o.
-demografix gender peter -o json
-demografix nationality nguyen -o jsonl
+demografix gender "Peter Griffin" -o json
+demografix nationality "Kim Nguyen" -o jsonl
 
 # Remaining quota for your key.
 demografix quota
